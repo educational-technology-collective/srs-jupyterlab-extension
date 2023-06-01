@@ -1,0 +1,7 @@
+{
+  "ServerApp": {
+    "jpserver_extensions": {
+      "spaced_repetition_extension": true
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "jupyter.lab.shortcuts": [],
+  "title": "spaced-repetition-extension",
+  "description": "spaced-repetition-extension settings.",
+  "type": "object",
+  "properties": {},
+  "additionalProperties": false
+}
