@@ -16,9 +16,9 @@
     "outDir": "lib",
     "rootDir": "src",
     "strict": true,
-    "strictNullChecks": true,
-    "target": "ES2018",
-    "types": ["jest"]
+    "strictNullChecks": false,
+    "target": "es2018",
+    "types": []
   },
   "include": ["src/*"]
 }

@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="1" failures="0" errors="0" time="4.41">
-  <testsuite name="spaced-repetition-extension" errors="0" failures="0" skipped="0" timestamp="2023-06-01T14:38:29" time="3.975" tests="1">
-    <testcase classname="spaced-repetition-extension should be tested" name="spaced-repetition-extension should be tested" time="0.002">
-    </testcase>
-  </testsuite>
-</testsuites>

@@ -1,44 +1,53 @@
 import {
   JupyterFrontEnd,
-  JupyterFrontEndPlugin
+  JupyterFrontEndPlugin,
 } from '@jupyterlab/application';
 
-import { ISettingRegistry } from '@jupyterlab/settingregistry';
+import { MainAreaWidget } from '@jupyterlab/apputils';
 
-import { requestAPI } from './handler';
+import { ILauncher } from '@jupyterlab/launcher';
+
+import { reactIcon } from '@jupyterlab/ui-components';
+
+import { CounterWidget } from './widget';
 
 /**
- * Initialization data for the spaced-repetition-extension extension.
+ * The command IDs used by the react-widget plugin.
  */
-const plugin: JupyterFrontEndPlugin<void> = {
-  id: 'spaced-repetition-extension:plugin',
-  description: 'A JupyterLab extension.',
+namespace CommandIDs {
+  export const create = 'create-react-widget';
+}
+
+/**
+ * Initialization data for the react-widget extension.
+ */
+const extension: JupyterFrontEndPlugin<void> = {
+  id: 'react-widget',
   autoStart: true,
-  optional: [ISettingRegistry],
-  activate: (app: JupyterFrontEnd, settingRegistry: ISettingRegistry | null) => {
-    console.log('JupyterLab extension spaced-repetition-extension is activated!');
+  optional: [ILauncher],
+  activate: (app: JupyterFrontEnd, launcher: ILauncher) => {
+    const { commands } = app;
 
-    if (settingRegistry) {
-      settingRegistry
-        .load(plugin.id)
-        .then(settings => {
-          console.log('spaced-repetition-extension settings loaded:', settings.composite);
-        })
-        .catch(reason => {
-          console.error('Failed to load settings for spaced-repetition-extension.', reason);
-        });
-    }
+    const command = CommandIDs.create;
+    commands.addCommand(command, {
+      caption: 'Create a new React Widget',
+      label: 'React Widget',
+      icon: (args) => (args['isPalette'] ? null : reactIcon),
+      execute: () => {
+        const content = new CounterWidget();
+        const widget = new MainAreaWidget<CounterWidget>({ content });
+        widget.title.label = 'React Widget';
+        widget.title.icon = reactIcon;
+        app.shell.add(widget, 'main');
+      },
+    });
 
-    requestAPI<any>('get-example')
-      .then(data => {
-        console.log(data);
-      })
-      .catch(reason => {
-        console.error(
-          `The spaced_repetition_extension server extension appears to be missing.\n${reason}`
-        );
+    if (launcher) {
+      launcher.add({
+        command,
       });
-  }
+    }
+  },
 };
 
-export default plugin;
+export default extension;
