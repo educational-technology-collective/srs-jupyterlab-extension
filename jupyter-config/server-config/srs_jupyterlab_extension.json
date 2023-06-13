@@ -1,0 +1,7 @@
+{
+  "ServerApp": {
+    "jpserver_extensions": {
+      "srs_jupyterlab_extension": true
+    }
+  }
+}

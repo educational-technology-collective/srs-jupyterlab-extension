@@ -1,53 +1,44 @@
 import {
   JupyterFrontEnd,
-  JupyterFrontEndPlugin,
+  JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 
-import { MainAreaWidget } from '@jupyterlab/apputils';
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
 
-import { ILauncher } from '@jupyterlab/launcher';
-
-import { reactIcon } from '@jupyterlab/ui-components';
-
-import { CounterWidget } from './widget';
+import { requestAPI } from './handler';
 
 /**
- * The command IDs used by the react-widget plugin.
+ * Initialization data for the srs-jupyterlab-extension extension.
  */
-namespace CommandIDs {
-  export const create = 'create-react-widget';
-}
-
-/**
- * Initialization data for the react-widget extension.
- */
-const extension: JupyterFrontEndPlugin<void> = {
-  id: 'react-widget',
+const plugin: JupyterFrontEndPlugin<void> = {
+  id: 'srs-jupyterlab-extension:plugin',
+  description: 'A JupyterLab extension.',
   autoStart: true,
-  optional: [ILauncher],
-  activate: (app: JupyterFrontEnd, launcher: ILauncher) => {
-    const { commands } = app;
+  optional: [ISettingRegistry],
+  activate: (app: JupyterFrontEnd, settingRegistry: ISettingRegistry | null) => {
+    console.log('JupyterLab extension srs-jupyterlab-extension is activated!');
 
-    const command = CommandIDs.create;
-    commands.addCommand(command, {
-      caption: 'Create a new React Widget',
-      label: 'React Widget',
-      icon: (args) => (args['isPalette'] ? null : reactIcon),
-      execute: () => {
-        const content = new CounterWidget();
-        const widget = new MainAreaWidget<CounterWidget>({ content });
-        widget.title.label = 'React Widget';
-        widget.title.icon = reactIcon;
-        app.shell.add(widget, 'main');
-      },
-    });
-
-    if (launcher) {
-      launcher.add({
-        command,
-      });
+    if (settingRegistry) {
+      settingRegistry
+        .load(plugin.id)
+        .then(settings => {
+          console.log('srs-jupyterlab-extension settings loaded:', settings.composite);
+        })
+        .catch(reason => {
+          console.error('Failed to load settings for srs-jupyterlab-extension.', reason);
+        });
     }
-  },
+
+    requestAPI<any>('get-example')
+      .then(data => {
+        console.log(data);
+      })
+      .catch(reason => {
+        console.error(
+          `The srs_jupyterlab_extension server extension appears to be missing.\n${reason}`
+        );
+      });
+  }
 };
 
-export default extension;
+export default plugin;
