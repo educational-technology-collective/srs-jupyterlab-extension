@@ -5,12 +5,29 @@ import {
 
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 
+import { MainAreaWidget } from '@jupyterlab/apputils';
+
+import { ILauncher } from '@jupyterlab/launcher';
+
+import { reactIcon } from '@jupyterlab/ui-components';
+
 import { requestAPI } from './handler';
+
+import { CounterWidget } from './widget';
+
+import { PasteDetector } from './pasteDetector';
+
+/**
+ * The command IDs used by the react-widget plugin.
+ */
+namespace CommandIDs {
+  export const create = 'create-react-widget';
+}
 
 /**
  * Initialization data for the srs-jupyterlab-extension extension.
  */
-const plugin: JupyterFrontEndPlugin<void> = {
+const pluginServer: JupyterFrontEndPlugin<void> = {
   id: 'srs-jupyterlab-extension:plugin',
   description: 'A JupyterLab extension.',
   autoStart: true,
@@ -20,7 +37,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     if (settingRegistry) {
       settingRegistry
-        .load(plugin.id)
+        .load(pluginServer.id)
         .then(settings => {
           console.log('srs-jupyterlab-extension settings loaded:', settings.composite);
         })
@@ -41,4 +58,72 @@ const plugin: JupyterFrontEndPlugin<void> = {
   }
 };
 
-export default plugin;
+/**
+ * Initialization data for the react-widget extension.
+ */
+const pluginWidget: JupyterFrontEndPlugin<void> = {
+  id: 'react-widget',
+  autoStart: true,
+  optional: [ILauncher],
+  activate: (app: JupyterFrontEnd, launcher: ILauncher) => {
+    const { commands } = app;
+
+    const command = CommandIDs.create;
+    commands.addCommand(command, {
+      caption: 'Create a new React Widget',
+      label: 'React Widget',
+      // @ts-ignore
+      icon: (args) => (args['isPalette'] ? null : reactIcon),
+      execute: () => {
+        const content = new CounterWidget();
+        const widget = new MainAreaWidget<CounterWidget>({ content });
+        widget.title.label = 'React Widget';
+        widget.title.icon = reactIcon;
+        app.shell.add(widget, 'main');
+      },
+    });
+
+    if (launcher) {
+      launcher.add({
+        command,
+      });
+    }
+  },
+};
+
+const pluginPasteDetector: JupyterFrontEndPlugin<void> = {
+  id: 'paste-detector',
+  autoStart: true,
+  activate: (app: JupyterFrontEnd) => {
+    app.commands.addCommand('paste-detector:open', {
+      label: 'Paste Detector',
+      execute: () => {
+        // const pasteDetector = new PasteDetector();
+        // document.addEventListener('paste', (event) => {
+        //   console.log('Paste event detected: ', event);
+        //   pasteDetector.detectPaste();
+        // });
+
+        const pasteDetector = new PasteDetector();
+        document.addEventListener('paste', (event) => {
+          // @ts-ignore
+          const clipboardData = event.clipboardData.getData('text/plain');
+          if (clipboardData) {
+            // Access the clipboard data here
+            console.log('Clipboard data:', clipboardData);
+          }
+          pasteDetector.detectPaste();
+        });
+
+    }});
+
+    app.contextMenu.addItem({
+      command: 'paste-detector:open',
+      selector: '.jp-Notebook',
+      rank: 0,
+    });
+
+  }
+}
+
+export default [pluginServer, pluginWidget, pluginPasteDetector];

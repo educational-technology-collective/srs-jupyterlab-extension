@@ -127,3 +127,7 @@ dmypy.json
 # IDE files
 .idea/
 .vscode/
+
+# jupyter notebook
+.ipynb_checkpoints/
+*.ipynb
