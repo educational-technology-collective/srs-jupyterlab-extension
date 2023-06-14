@@ -6,17 +6,12 @@ export class LibDetector {
   constructor(notebookPanel: NotebookPanel) {
     this._notebookPanel = notebookPanel;
     console.log('LibDetector constructor called!');
-    console.log(`Notebook panel: ${this._notebookPanel}`);
   }
 
   // Detect which libraries get imported in the notebook.
   public detectLib() {
     const notebook = this._notebookPanel.content;
-    console.log(`Notebook: ${notebook}`)
     const activeCell = notebook.activeCell;
-    console.log(`Active cell: ${activeCell}`);
-    console.log(`Active cell model: ${activeCell?.model}`)
-    console.log(`Active cell model type: ${activeCell?.model.type}`)
     if (activeCell?.model.type === 'markdown') {
       console.log('Markdown cell detected!');
     }
@@ -28,12 +23,15 @@ export class LibDetector {
       // If code is string[], join the array into a single string.
       if (Array.isArray(code)) {
         code.join('');
+        console.log(`CodeJoined: ${code}`)
       }
-      const importRegex = /import\s+(?:\*\s+as\s+\w+\s+from\s+)?(?:(?:(?:\w+|\{(?:\s*\w+\s*(?:,\s*\w+\s*)*)?\})\s+from\s+)?['"]([^'"]+)['"]|['"]([^'"]+)['"])/g;
-      let match;
-      while ((match = importRegex.exec(<string>code)) !== null) {
-        const lib = match[1] || match[2];
-        console.log(`Library detected: ${lib}`);
+      const importRegex = /^\s*import\s+(\w+)(?:\s+as\s+(\w+))?/;
+      // @ts-ignore
+      const importMatch = code.match(importRegex);
+      if (importMatch) {
+        console.log(`Import statement detected: ${importMatch[0]}`);
+        console.log(`Imported library: ${importMatch[1]}`);
+        console.log(`Imported library as: ${importMatch[2]}`);
       }
     }
   }
