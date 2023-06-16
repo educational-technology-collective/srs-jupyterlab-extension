@@ -124,12 +124,14 @@ const pluginWidget: JupyterFrontEndPlugin<void> = {
       body: JSON.stringify(data),
     };
 
-    let flashcard;
+    let flashcard: JSON[] = [];
 
     requestAPI("/data", init)
       .then(response => {
         console.log("Response from server:", response);
-        flashcard = response;
+        // Change the type of response to the string
+        // @ts-ignore
+        flashcard = response as JSON[];
       })
       .catch(error => {
         console.error("Error from server:", error);
@@ -144,7 +146,7 @@ const pluginWidget: JupyterFrontEndPlugin<void> = {
       // @ts-ignore
       icon: (args) => (args['isPalette'] ? null : reactIcon),
       execute: () => {
-        const content = new CounterWidget();
+        const content = new CounterWidget(flashcard);
         const widget = new MainAreaWidget<CounterWidget>({ content });
         widget.title.label = 'React Widget';
         widget.title.icon = reactIcon;
