@@ -2,23 +2,14 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
-
 import { NotebookPanel } from '@jupyterlab/notebook';
-
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
-
 import { MainAreaWidget } from '@jupyterlab/apputils';
-
 import { ILauncher } from '@jupyterlab/launcher';
-
 import { reactIcon } from '@jupyterlab/ui-components';
-
 import { requestAPI } from './handler';
-
 import { CounterWidget } from './widget';
-
 import { PasteDetector } from './pasteDetector';
-
 import { LibDetector } from './libDetector';
 
 /**
@@ -26,22 +17,23 @@ import { LibDetector } from './libDetector';
  */
 namespace CommandIDs {
   export const create = 'create-react-widget';
+  export const detectPaste = 'detect-paste';
+  export const detectLib = 'detect-lib';
 }
 
 /**
- * Initialization data for the srs-jupyterlab-extension extension.
+ * Initialization data for the react-widget extension.
  */
-const pluginServer: JupyterFrontEndPlugin<void> = {
-  id: 'srs-jupyterlab-extension:plugin',
-  description: 'A JupyterLab extension.',
+const pluginWidget: JupyterFrontEndPlugin<void> = {
+  id: 'react-widget',
   autoStart: true,
-  optional: [ISettingRegistry],
-  activate: (app: JupyterFrontEnd, settingRegistry: ISettingRegistry | null) => {
+  optional: [ILauncher, ISettingRegistry],
+  activate: (app: JupyterFrontEnd, launcher: ILauncher, settingRegistry: ISettingRegistry | null) => {
     console.log('JupyterLab extension srs-jupyterlab-extension is activated!');
 
     if (settingRegistry) {
       settingRegistry
-        .load(pluginServer.id)
+        .load(pluginWidget.id)
         .then(settings => {
           console.log('srs-jupyterlab-extension settings loaded:', settings.composite);
         })
@@ -50,26 +42,99 @@ const pluginServer: JupyterFrontEndPlugin<void> = {
         });
     }
 
-    requestAPI<any>('get-example')
-      .then(data => {
-        console.log(data);
-      })
-      .catch(reason => {
-        console.error(
-          `The srs_jupyterlab_extension server extension appears to be missing.\n${reason}`
-        );
-      });
-  }
-};
+    const data = {
+      "cells": [
+        {
+          "cell": "Assignment 1\n" +
+            "Before you start working on the problems, here is a small example to help you understand how to write your answers. The solution should be written within the function body given, and the final result should be returned. Then the autograder will try to call the function and validate your returned result accordingly. Before submitting to the autograder, see if the tests we have included with this file pass by pressing the Validate button on the toolbar.\n" +
+            "Note: For all assignments please write all of your code within the function we define in order to ensure it is run by the autograder correctly",
+          "celltype": "markdown",
+          // add more key-value pairs as needed
+        },
+        {
+          "cell": "Question 1: names()\n" +
+            "Fix the incorrect regex between ### FIX CODE BELOW and ### FIX CODE ABOVE to generate a list of names in the simple_string.",
+          "celltype": "markdown",
+        },
+        {
+          "cell": "def names():\n" +
+            "    import re\n" +
+            "    simple_string = \"\"\"Amy is 5 years old, and her sister Mary is 2 years old. \n" +
+            "    Ruth and Peter, their parents, have 3 kids.\"\"\"\n" +
+            "\n" +
+            "    ### FIX CODE BELOW  \n" +
+            "    pattern = r'[A-Za-z]?'\n" +
+            "    match = re.finditer(pattern, simple_string)\n" +
+            "    ### FIX CODE ABOVE  \n" +
+            "    \n" +
+            "    ### BEGIN SOLUTION\n" +
+            "    pattern = r'[A-Z][a-z]*'\n" +
+            "    match = re.findall(pattern, simple_string)\n" +
+            "\n" +
+            "    # Alternative answers: \n" +
+            "    # pattern = r'[A-Z]\\w+'\n" +
+            "    # pattern = r'[A-Z]\\S+'\n" +
+            "    ### END SOLUTION\n" +
+            "    \n" +
+            "    return match\n" +
+            "    \n" +
+            "names()",
+          "celltype": "code",
+        },
+        {
+          "cell": "Question 2: student_grades()\n" +
+            "The dataset file in assets/grades.txt contains multiple lines of people along with their grades in a class. Fix the incorrect regex between ### FIX CODE BELOW and ### FIX CODE ABOVE to generate a list of just those students who received a B in the course (e.g., ['John Doe', 'Jane Doe'].)",
+          "celltype": "markdown",
+        },
+        {
+          "cell": "def student_grades():\n" +
+            "    import re\n" +
+            "    with open (\"assets/grades.txt\", \"r\") as file:\n" +
+            "        grades = file.read()\n" +
+            "\n" +
+            "    ### FIX CODE BELOW\n" +
+            "    pattern = \"\"\"(\\w+)\"\"\"\n" +
+            "    matches = re.findall(pattern,grades)\n" +
+            "    ### FIX CODE ABOVE\n" +
+            "        \n" +
+            "        \n" +
+            "    ### BEGIN SOLUTION\n" +
+            "    pattern = re.compile(r'\\w+\\s\\w+(?=: B)')\n" +
+            "    matches = re.findall(pattern,grades)\n" +
+            "\n" +
+            "    # Alternative answers: \n" +
+            "    # pattern = \"\"\"(?P<test>\\w+\\s+\\w+): B\"\"\"\n" +
+            "    \n" +
+            "    ### END SOLUTION   \n" +
+            "\n" +
+            "    return matches  \n" +
+            "    \n" +
+            "student_grades()",
+          "celltype": "code",
+        }
+      ],
+    "metadata": {}
+    }
 
-/**
- * Initialization data for the react-widget extension.
- */
-const pluginWidget: JupyterFrontEndPlugin<void> = {
-  id: 'react-widget',
-  autoStart: true,
-  optional: [ILauncher],
-  activate: (app: JupyterFrontEnd, launcher: ILauncher) => {
+    const init = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    };
+
+    let flashcard;
+
+    requestAPI("/data", init)
+      .then(response => {
+        console.log("Response from server:", response);
+        flashcard = response;
+      })
+      .catch(error => {
+        console.error("Error from server:", error);
+      });
+
     const { commands } = app;
 
     const command = CommandIDs.create;
@@ -146,4 +211,4 @@ const pluginLibraryDetector: JupyterFrontEndPlugin<void> = {
 
 }
 
-export default [pluginServer, pluginWidget, pluginPasteDetector, pluginLibraryDetector];
+export default [pluginWidget, pluginPasteDetector, pluginLibraryDetector];
