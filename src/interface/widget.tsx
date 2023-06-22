@@ -1,6 +1,6 @@
 import { ReactWidget } from '@jupyterlab/apputils';
 
-import React, { useState } from 'react';
+import React from 'react';
 
 /**
  * React component for a counter.
@@ -44,9 +44,17 @@ export class CounterWidget extends ReactWidget {
       <div style={{ width: '100%', padding: '20px' }}>
         {this._flashcard.map((flashcard, index) =>
           <div key={index} style={{ backgroundColor: '#f5f5f5', borderRadius: '5px', padding: '20px', marginBottom: '20px' }}>
-            {Object.entries(flashcard).map(([key, value]) =>
-              <div key={key} style={{ fontSize: key === 'question' ? '20px' : '16px', fontWeight: key === 'question' ? 'bold' : 'normal' }}>
-                {key}: {value}
+            {Object.entries(flashcard).map(([key, value], kvIndex) =>
+              <div
+                key={key}
+                style={{
+                  fontSize: kvIndex === 0 ? '24px' : '16px',
+                  fontWeight: kvIndex === 0 ? 'bold' : 'normal',
+                  marginBottom: kvIndex === 0 ? '20px' : '0px',
+                  color: kvIndex === 0 && key === 'question' ? 'green' : 'black'
+                }}
+              >
+                {value}
               </div>
             )}
           </div>
