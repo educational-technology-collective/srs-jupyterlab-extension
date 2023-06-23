@@ -131,3 +131,7 @@ dmypy.json
 # jupyter notebook
 .ipynb_checkpoints/
 *.ipynb
+
+# local server
+server/
+

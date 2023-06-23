@@ -1,6 +1,6 @@
 import { NotebookPanel } from '@jupyterlab/notebook';
 
-export class LibDetector {
+export class LibScanner {
   private _notebookPanel: NotebookPanel;
 
   constructor(notebookPanel: NotebookPanel) {
