@@ -11,10 +11,8 @@ import { requestAPI } from './handler';
 import { CounterWidget } from './interface/widget';
 import { PasteDetector } from './detector/pasteDetector';
 import { LibScanner } from './scanner/libScanner';
+import { ActiveCellScanner } from './scanner/activeCellScanner';
 
-/**
- * The command IDs used by the react-widget plugin.
- */
 namespace CommandIDs {
   export const create = 'create-react-widget';
 }
@@ -63,13 +61,14 @@ interface user {
 
 let flashcards: flashcard[] = [];
 
+// Hardcoded for now
 let user = {
   user_id: 0,
   email: "example@umich.edu",
   cards: [] as Array<user["cards"]>
 }
 
-
+// Step 1. Get preset flashcards from the backend
 const init = async () => {
   const response = await requestAPI<any>('init');
   flashcards = response.flashcards;
@@ -95,8 +94,6 @@ const init = async () => {
     });
   }
 }
-
-init();
 
 /**
  * Initialization data for the react-widget extension.
@@ -244,6 +241,47 @@ const pluginWidget: JupyterFrontEndPlugin<void> = {
   },
 };
 
+const pluginLibScanner: JupyterFrontEndPlugin<void> = {
+  id: 'library-detector',
+  autoStart: true,
+  activate: (app: JupyterFrontEnd) => {
+    app.commands.addCommand('library-detector:open', {
+      label: 'Library Detector',
+      execute: () => {
+        console.log('Library Detector activated!');
+        const panel = app.shell.currentWidget as NotebookPanel;
+        const libDetector = new LibScanner(panel);
+        libDetector.detectLib();
+    }});
+
+    app.contextMenu.addItem({
+      command: 'library-detector:open',
+      selector: '.jp-Notebook',
+      rank: 0,
+    });}
+}
+
+const pluginActiveCellScanner: JupyterFrontEndPlugin<void> = {
+  id: 'active-cell-detector',
+  autoStart: true,
+  activate: (app: JupyterFrontEnd) => {
+    app.commands.addCommand('active-cell-detector:open', {
+      label: 'Active Cell Detector',
+      execute: () => {
+        console.log('Active Cell Detector activated!');
+        const panel = app.shell.currentWidget as NotebookPanel;
+        const activeCellDetector = new ActiveCellScanner(panel);
+        activeCellDetector.scanActiveCell();
+    }});
+
+    app.contextMenu.addItem({
+      command: 'active-cell-detector:open',
+      selector: '.jp-Notebook',
+      rank: 0,
+    });
+  }
+}
+
 const pluginPasteDetector: JupyterFrontEndPlugin<void> = {
   id: 'paste-detector',
   autoStart: true,
@@ -270,28 +308,9 @@ const pluginPasteDetector: JupyterFrontEndPlugin<void> = {
       selector: '.jp-Notebook',
       rank: 0,
     });
-
   }
 }
 
-const pluginLibraryDetector: JupyterFrontEndPlugin<void> = {
-  id: 'library-detector',
-  autoStart: true,
-  activate: (app: JupyterFrontEnd) => {
-    app.commands.addCommand('library-detector:open', {
-      label: 'Library Detector',
-      execute: () => {
-        console.log('Library Detector activated!');
-        const panel = app.shell.currentWidget as NotebookPanel;
-        const libDetector = new LibScanner(panel);
-        libDetector.detectLib();
-    }});
 
-    app.contextMenu.addItem({
-      command: 'library-detector:open',
-      selector: '.jp-Notebook',
-      rank: 0,
-    });}
-}
 
-export default [pluginWidget, pluginPasteDetector, pluginLibraryDetector];
+export default [pluginWidget, pluginLibScanner, pluginActiveCellScanner, pluginPasteDetector];
