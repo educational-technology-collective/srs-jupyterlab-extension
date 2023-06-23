@@ -9,7 +9,7 @@ export class LibScanner {
   }
 
   // Detect which libraries get imported in the notebook.
-  public detectLib() {
+  public scan() {
     const notebook = this._notebookPanel.content;
     const activeCell = notebook.activeCell;
     if (activeCell?.model.type === 'markdown') {

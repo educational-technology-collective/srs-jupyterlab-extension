@@ -9,7 +9,7 @@ private _notebookPanel: NotebookPanel;
   }
 
   // Grab code from the active cell.
-  public scanActiveCell() {
+  public scan() {
     const notebook = this._notebookPanel.content;
     const activeCell = notebook.activeCell;
     if (activeCell?.model.type === 'markdown') {

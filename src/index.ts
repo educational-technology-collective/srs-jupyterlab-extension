@@ -2,16 +2,18 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
-import { NotebookPanel } from '@jupyterlab/notebook';
+import { INotebookTracker } from '@jupyterlab/notebook';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { MainAreaWidget } from '@jupyterlab/apputils';
 import { ILauncher } from '@jupyterlab/launcher';
 import { reactIcon } from '@jupyterlab/ui-components';
 import { requestAPI } from './handler';
 import { CounterWidget } from './interface/widget';
-import { PasteDetector } from './detector/pasteDetector';
 import { LibScanner } from './scanner/libScanner';
 import { ActiveCellScanner } from './scanner/activeCellScanner';
+import { MdCellScanner } from './scanner/mdCellScanner';
+import { ValidateDetector } from './detector/validateDetector';
+import { PasteDetector } from './detector/pasteDetector';
 
 namespace CommandIDs {
   export const create = 'create-react-widget';
@@ -68,8 +70,7 @@ let user = {
   cards: [] as Array<user["cards"]>
 }
 
-// Step 1. Get preset flashcards from the backend
-const init = async () => {
+const init = async (notebookId :number) => {
   const response = await requestAPI<any>('init');
   flashcards = response.flashcards;
   console.log(flashcards);
@@ -95,9 +96,50 @@ const init = async () => {
   }
 }
 
-/**
- * Initialization data for the react-widget extension.
- */
+const extension: JupyterFrontEndPlugin<void> = {
+  id: 'srs-jupyterlab-extension',
+  autoStart: true,
+  requires: [INotebookTracker],
+  activate: activate
+}
+
+function activate(app: JupyterFrontEnd, notebooks: INotebookTracker): void {
+  // Whenever a notebook is opened or switched,
+  // attach the validator detector to it
+  notebooks.currentChanged.connect((_, notebook) => {
+    if (notebook) {
+      // Get notebook name
+      const notebookPath = notebook.context.path;
+      // Extract notebook name from path
+      const notebookNameArray = notebookPath.split("/");
+      const notebookName = notebookNameArray[notebookNameArray.length - 1];
+      if (notebookName === "assignment1.ipynb" || notebookName === "assignment2.ipynb") {
+        // Grab the id from notebookname
+        const notebookId : number = parseInt(notebookName.split(".")[0].split("assignment")[1]);
+        // Initialize the flashcards
+        init(notebookId).then(() => {
+          console.log("Initialization complete");
+        });
+        const vdetector = new ValidateDetector();
+        const pdetector = new PasteDetector();
+        // While either validate or paste is detected, activate the scanners
+        while (vdetector.detect() || pdetector.detect()) {
+          const ascanner = new ActiveCellScanner(notebook);
+          const lscanner = new LibScanner(notebook);
+          const mscanner = new MdCellScanner(notebook);
+          ascanner.scan();
+          lscanner.scan();
+          mscanner.scan();
+          // Generate personalized flashcards
+        }
+      }
+      else {
+        console.log("Notebook not supported");
+      }
+    }
+  });
+}
+
 const pluginWidget: JupyterFrontEndPlugin<void> = {
   id: 'react-widget',
   autoStart: true,
@@ -241,76 +283,4 @@ const pluginWidget: JupyterFrontEndPlugin<void> = {
   },
 };
 
-const pluginLibScanner: JupyterFrontEndPlugin<void> = {
-  id: 'library-detector',
-  autoStart: true,
-  activate: (app: JupyterFrontEnd) => {
-    app.commands.addCommand('library-detector:open', {
-      label: 'Library Detector',
-      execute: () => {
-        console.log('Library Detector activated!');
-        const panel = app.shell.currentWidget as NotebookPanel;
-        const libDetector = new LibScanner(panel);
-        libDetector.detectLib();
-    }});
-
-    app.contextMenu.addItem({
-      command: 'library-detector:open',
-      selector: '.jp-Notebook',
-      rank: 0,
-    });}
-}
-
-const pluginActiveCellScanner: JupyterFrontEndPlugin<void> = {
-  id: 'active-cell-detector',
-  autoStart: true,
-  activate: (app: JupyterFrontEnd) => {
-    app.commands.addCommand('active-cell-detector:open', {
-      label: 'Active Cell Detector',
-      execute: () => {
-        console.log('Active Cell Detector activated!');
-        const panel = app.shell.currentWidget as NotebookPanel;
-        const activeCellDetector = new ActiveCellScanner(panel);
-        activeCellDetector.scanActiveCell();
-    }});
-
-    app.contextMenu.addItem({
-      command: 'active-cell-detector:open',
-      selector: '.jp-Notebook',
-      rank: 0,
-    });
-  }
-}
-
-const pluginPasteDetector: JupyterFrontEndPlugin<void> = {
-  id: 'paste-detector',
-  autoStart: true,
-  activate: (app: JupyterFrontEnd) => {
-    app.commands.addCommand('paste-detector:open', {
-      label: 'Paste Detector',
-      execute: () => {
-
-        const pasteDetector = new PasteDetector();
-        document.addEventListener('paste', (event) => {
-          // @ts-ignore
-          const clipboardData = event.clipboardData.getData('text/plain');
-          if (clipboardData) {
-            // Access the clipboard data here
-            console.log('Clipboard data:', clipboardData);
-          }
-          pasteDetector.detectPaste();
-        });
-
-    }});
-
-    app.contextMenu.addItem({
-      command: 'paste-detector:open',
-      selector: '.jp-Notebook',
-      rank: 0,
-    });
-  }
-}
-
-
-
-export default [pluginWidget, pluginLibScanner, pluginActiveCellScanner, pluginPasteDetector];
+export default [extension, pluginWidget];

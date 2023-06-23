@@ -4,25 +4,31 @@ import { MimeData } from '@lumino/coreutils';
 export class PasteDetector {
   private _clipboard: MimeData;
 
-
   constructor() {
     this._clipboard = Clipboard.getInstance();
     console.log('PasteDetector constructor called!');
   }
 
-  public detectPaste() {
+  public detect() : boolean {
     console.log('Paste detected!');
 
-    const dataTypes = this._clipboard.types();
-    console.log(`Clipboard data types: ${dataTypes}`);
+    document.addEventListener('paste', (event) => {
+    // @ts-ignore
+    const clipboardData = event.clipboardData.getData('text/plain');
+    if (clipboardData) {
+      // Access the clipboard data here
+      console.log('Clipboard data:', clipboardData);
+      // Check if the paste event is triggered from the notebook
+      if (this._clipboard.hasData('application/x-jupyterlab-cell-traceback')) {
+        console.log('Paste event triggered from the notebook!');
+      }
+      else {
+        console.log('Paste event triggered from outside the notebook!');
+      }
+      this._clipboard.setData('text/plain', clipboardData);
+    }
+    });
 
-    const dataTypesLength = dataTypes.length;
-    console.log(`Clipboard data types length: ${dataTypesLength}`);
-
-    const hasData = this._clipboard.hasData('text/plain');
-    console.log(`Clipboard has text/plain data: ${hasData}`);
-
-    const pasteContent = this._clipboard.getData('text/plain');
-    console.log(`Paste content: ${pasteContent}`);
+    return true;
   }
 }
