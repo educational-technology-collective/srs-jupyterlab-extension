@@ -37,7 +37,7 @@ interface multipleChoiceFlashcard {
   };
 }
 
-type flashcard = questionFlashcard | multipleChoiceFlashcard;
+export type flashcard = questionFlashcard | multipleChoiceFlashcard;
 
 interface user {
   user_id: number;
