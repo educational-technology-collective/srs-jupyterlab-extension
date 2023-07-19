@@ -24,7 +24,7 @@ interface questionFlashcard {
   type: "q";
   content: {
     question: string;
-    answer: string;
+    answer: string; // Answer is limited to 200 characters
   };
 }
 
@@ -33,7 +33,7 @@ interface multipleChoiceFlashcard {
   type: "m";
   content: {
     question: string;
-    answer: Array<{ option: string; isCorrect: boolean }>;
+    answer: Array<{ option: string; isCorrect: boolean }>; // Option is limited to 45 characters
   };
 }
 
