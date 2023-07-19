@@ -11,9 +11,14 @@ interface assignmentContent {
 
 type staticFlashcards = Array<flashcard>;
 
-interface context {
-  assignment: assignmentContent;
-  flashcards: staticFlashcards;
+export interface lm {
+  lm_id: number;
+  platform: "jupyter";
+  type: "copy" | "error";
+  data: {
+    assignment: assignmentContent;
+    flashcards: staticFlashcards;
+  }
 }
 
 const a1_static_flashcards: staticFlashcards = [
@@ -213,7 +218,7 @@ const a2_static_flashcards: staticFlashcards = [
   }
 ];
 
-export default function getContext(assignmentId, questionId) : context {
+export default function getContext(assignmentId, questionId) : lm {
     if (assignmentId == 1) {
         return {
             assignment: assignmentId,

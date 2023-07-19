@@ -14,6 +14,7 @@ import { ActiveCellScanner } from './scanner/activeCellScanner';
 import { MdCellScanner } from './scanner/mdCellScanner';
 import { ValidateDetector } from './detector/validateDetector';
 import { PasteDetector } from './detector/pasteDetector';
+import { lm } from './lm';
 
 namespace CommandIDs {
   export const create = 'create-react-widget';
