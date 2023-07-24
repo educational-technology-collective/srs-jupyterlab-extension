@@ -15,7 +15,7 @@ import { MdCellScanner } from './scanner/mdCellScanner';
 import { ValidateDetector } from './detector/validateDetector';
 import { PasteDetector } from './detector/pasteDetector';
 // @ts-ignore
-import { lm } from './interface/lm';
+import { lm } from './interface/learningMoment';
 import { flashcard } from './interface/flashcard';
 
 // namespace CommandIDs {
