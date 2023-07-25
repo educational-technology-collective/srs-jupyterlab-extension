@@ -1,12 +1,14 @@
+import { BaseDetector } from './baseDetector';
+import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { Clipboard } from '@jupyterlab/apputils';
 import { MimeData } from '@lumino/coreutils';
 
-export class CopyPasteDetector {
-  private _clipboard: MimeData;
+export class CopyPasteDetector extends BaseDetector{
+  private _clipboard: MimeData = Clipboard.getInstance();
 
-  constructor() {
-    this._clipboard = Clipboard.getInstance();
-    console.log('PasteDetector constructor called!');
+  constructor(notebookPanel: NotebookPanel, iNotebookTracker: INotebookTracker) {
+    super(notebookPanel, iNotebookTracker);
+    console.log('CopyPasteDetector constructor');
   }
 
   public detect() : boolean {
@@ -29,6 +31,10 @@ export class CopyPasteDetector {
     }
     });
 
+    return true;
+  }
+
+  public ifLearningMomentIsValid(): boolean {
     return true;
   }
 }

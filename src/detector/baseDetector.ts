@@ -17,7 +17,7 @@ export abstract class BaseDetector {
 
   abstract ifLearningMomentIsValid(): boolean;
 
-  protected run(): void {
+  public run(): void {
     if (this.detect()) {
       if (this.ifLearningMomentIsValid()) {
         const cellId = this.getCurrentCellId();

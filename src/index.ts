@@ -13,7 +13,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 // import { ActiveCellScanner } from './scanner/activeCellScanner';
 // import { MdCellScanner } from './scanner/mdCellScanner';
 // import { ValidateDetector } from './detector/validateDetector';
-// import { PasteDetector } from './detector/pasteDetector';
+import { CopyPasteDetector } from './detector/copyPasteDetector';
 import { user } from './interface/user';
 
 // namespace CommandIDs {
@@ -41,10 +41,10 @@ function getAssignmentId(currentNotebookPath: string): number {
   }
 }
 
-function activate(app: JupyterFrontEnd, notebooks: INotebookTracker): void {
+function activate(app: JupyterFrontEnd, iNotebookTracker: INotebookTracker): void {
   console.log('JupyterLab extension srs-jupyterlab-extension is activated!');
-  notebooks.currentChanged.connect((_, notebook) => {
-    const currentNotebookPath = notebook?.context.path;
+  iNotebookTracker.currentChanged.connect((_, notebookPanel) => {
+    const currentNotebookPath = notebookPanel?.context.path;
     // Proceed only if the notebook is not null
     if (currentNotebookPath) {
       const assignmentId = getAssignmentId(currentNotebookPath);
@@ -52,9 +52,9 @@ function activate(app: JupyterFrontEnd, notebooks: INotebookTracker): void {
       if (assignmentId !== -1) {
         console.log(`Assignment ID: ${assignmentId} detected!`);
         // Run detectors
-        // const cp = CopyPasteDetector(notebook);
+        const cp = new CopyPasteDetector(notebookPanel, iNotebookTracker);
         // const ec = ErrorCellDetector(notebook);
-        // cp.run();
+        cp.run();
         // ec.run();
       }
       else {
