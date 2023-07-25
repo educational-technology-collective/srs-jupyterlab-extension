@@ -13,21 +13,24 @@ export abstract class BaseDetector {
     this.iNotebookTracker = iNotebookTracker;
   }
 
-  abstract detect(): boolean;
+  /*
+    * Description: Detect learning moments, implement this method in the child class.
+    * @return {boolean} - True if a learning moment is detected, false otherwise.
+   */
+  abstract detect(): Promise<boolean>;
 
-  abstract ifLearningMomentIsValid(): boolean;
+  /*
+    * Description: Check if the learning moment is valid, implement this method in the child class.
+    * @return {boolean} - True if the learning moment is valid, false otherwise.
+   */
+  abstract isValidLearningMoment(): boolean;
 
-  public run(): void {
-    if (this.detect()) {
-      if (this.ifLearningMomentIsValid()) {
-        const cellId = this.getCurrentCellId();
-        const lineNum = this.getLineNum();
-        const timestamp = this.getCurrentTimestamp();
-        console.log(`Cell ID: ${cellId}`);
-        console.log(`Line number: ${lineNum}`);
-        console.log(`Timestamp: ${timestamp}`);
-      }
-    }
+  /*
+    * Description: Run the detector.
+    * @return {void} - Nothing.
+   */
+  public async run(): Promise<void> {
+    await this.detect();
   }
 
   /*
