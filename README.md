@@ -7,7 +7,7 @@ This extension is composed of a Python package named `srs_jupyterlab_extension`
 for the server extension and a NPM package named `srs-jupyterlab-extension`
 for the frontend extension.
 
-## Overview
+## Background
 
 You are a computer science instructor who wants to help students learn from their coding activities during assignments, such as copy paste, error message, and in the future built-in Chatgpt messages through the method of spaced repetition.
 
@@ -98,6 +98,80 @@ export interface userActivity {
   static_flashcards: Array<flashcard>;
 }
 ```
+## API Gateway
+
+Given the interface and workflow, we have API Gateway routes designed as below:
+
+- /dev/
+	- context/{assignment_id}/{question_id}
+		- **GET**
+		- **PUT**
+	- gpt/ -- **PUSH** Send contexts and userActivities data and return dynamic flashcards from ChatGPT
+	- lm/
+		- **POST**
+		- **GET**
+	- flashcards/
+		- **POST**
+		- **GET**
+		- **PUT**
+		- **DELETE**
+	- upload/
+		- lm -- **PUSH** Push learning moments to database
+		- flashcard -- **PUSH** Upload flashcards to database
+
+#### Flashcards API Endpoints
+
+1. **Create a New Flashcard:**
+	- Method: POST
+	- Endpoint: `/flashcards`
+	- Description: Creates a new flashcard.
+	- Request Body: JSON object containing flashcard data.
+	- Example Request: `POST /flashcards {...}`
+2. **Read Flashcard Details:**
+	- Method: GET
+	- Endpoint: `/flashcards/{flashcard_id}`
+	- Description: Retrieves details of a specific flashcard by its ID.
+	- Example Request: `GET /flashcards/12345`
+3. **Update Flashcard Details:**
+	- Method: PUT
+	- Endpoint: `/flashcards/{flashcard_id}`
+	- Description: Updates details of a specific flashcard by its ID.
+	- Request Body: JSON object containing updated flashcard data.
+	- Example Request: `PUT /flashcards/12345 {...}`
+4. **Delete Flashcard:**
+	- Method: DELETE
+	- Endpoint: `/flashcards/{flashcard_id}`
+	- Description: Deletes a specific flashcard by its ID.
+	- Example Request: `DELETE /flashcards/12345`
+
+#### Learning Moments API Endpoints
+
+1. **Capture a Learning Moment:**
+	- Method: POST
+	- Endpoint: `/learning-moments`
+	- Description: Captures a new learning moment with user activity details.
+	- Request Body: JSON object containing learning moment data, including context and user activity.
+	- Example Request: `POST /learning-moments {...}`
+2. **Retrieve Learning Moments for an Assignment:**
+	- Method: GET
+	- Endpoint: `/learning-moments/{assignment_id}`
+	- Description: Retrieves all valid learning moments for a specific assignment.
+	- Example Request: `GET /learning-moments/98765`
+
+#### Static Context API Endpoints
+
+1. **Retrieve Static Context for an Assignment and Question:**
+	- Method: GET
+	- Endpoint: `/static-context/{assignment_id}/{question_id}`
+	- Description: Retrieves the static context information for a specific assignment and question.
+	- Example Request: `GET /static-context/98765/54321`
+2. **Update Static Context for an Assignment and Question:**
+	- Method: PUT
+	- Endpoint: `/static-context/{assignment_id}/{question_id}`
+	- Description: Updates the static context information for a specific assignment and question.
+	- Request Body: JSON object containing updated context data.
+	- Example Request: `PUT /static-context/98765/54321 {...}`
+
 
 ## Requirements
 
