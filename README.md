@@ -102,24 +102,56 @@ export interface userActivity {
 
 Given the interface and workflow, we have API Gateway routes designed as below:
 
-- /dev/
-	- context/{assignment_id}/{question_id}
-		- **GET**
-		- **PUT**
-	- gpt/ -- **PUSH** Send contexts and userActivities data and return dynamic flashcards from ChatGPT
-	- lm/
+- /dev
+	- /learning-moments
 		- **POST**
-		- **GET**
-	- flashcards/
+		- /{lm_id}
+			- **GET**
+		- /assignments
+			- /{assignment_id}
+				- **GET**
+				- /questions
+					- /{question_id}
+						- **GET**
+	- /flashcards
 		- **POST**
-		- **GET**
-		- **PUT**
-		- **DELETE**
-	- upload/
-		- lm -- **PUSH** Push learning moments to database
-		- flashcard -- **PUSH** Upload flashcards to database
+		- /{flashcard_id}
+			- **GET**
+			- **PUT**
+			- **DELETE**
+	- /context
+		- /{assignment_id}
+			- /{question_id}
+				- **GET**
+				- **PUT**
+	- /gpt
+		- **PUSH**
 
-#### Flashcards API Endpoints
+### Learning Moments API Endpoints
+
+1. **Capture a Learning Moment:**
+	- Method: POST
+	- Endpoint: `/learning-moments`
+	- Description: Captures a new learning moment with user activity details.
+	- Request Body: JSON object containing learning moment data, including context and user activity.
+	- Example Request: `POST /learning-moments {...}`
+2. **Retrieve Learning Moments from Learning Moments Id:**
+	- Method: GET
+	- Endpoint: `/learning-moments/{lm_id}`
+	- Description: Retrieves all valid learning moments for a specific assignment.
+	- Example Request: `GET /learning-moments/98765`
+3. **Retrieve Learning Moments for an Assignment:**
+    - Method: GET
+    - Endpoint: `/learning-moments/assignments/{assignment_id}`
+    - Description: Retrieves all learning moments for a specific assignment.
+    - Example Request: `GET /learning-moments/assignments/98765`
+4. **Retrieve Learning Moments for an Assignment's Question:**
+    - Method: GET
+    - Endpoint: `/learning-moments/assignments/{assignment_id}/questions/{question_id}`
+    - Description: Retrieves all learning moments for a specific question of an assignment.
+    - Example Request: `GET /learning-moments/assignments/98765/questions/54321`
+
+### Flashcards API Endpoints
 
 1. **Create a New Flashcard:**
 	- Method: POST
@@ -144,21 +176,7 @@ Given the interface and workflow, we have API Gateway routes designed as below:
 	- Description: Deletes a specific flashcard by its ID.
 	- Example Request: `DELETE /flashcards/12345`
 
-#### Learning Moments API Endpoints
-
-1. **Capture a Learning Moment:**
-	- Method: POST
-	- Endpoint: `/learning-moments`
-	- Description: Captures a new learning moment with user activity details.
-	- Request Body: JSON object containing learning moment data, including context and user activity.
-	- Example Request: `POST /learning-moments {...}`
-2. **Retrieve Learning Moments for an Assignment:**
-	- Method: GET
-	- Endpoint: `/learning-moments/{assignment_id}`
-	- Description: Retrieves all valid learning moments for a specific assignment.
-	- Example Request: `GET /learning-moments/98765`
-
-#### Static Context API Endpoints
+### Context API Endpoints
 
 1. **Retrieve Static Context for an Assignment and Question:**
 	- Method: GET
@@ -172,6 +190,14 @@ Given the interface and workflow, we have API Gateway routes designed as below:
 	- Request Body: JSON object containing updated context data.
 	- Example Request: `PUT /static-context/98765/54321 {...}`
 
+### GPT API Endpoint
+
+1. **Push New Flashcards to GPT:**
+	- Method: POST
+	- Endpoint: `/gpt`
+	- Description: Pushes the newly created flashcards to the GPT model to generate additional flashcards.
+	- Request Body: JSON object containing the array of newly created flashcards.
+	- Example Request: `POST /gpt {...}`
 
 ## Requirements
 
