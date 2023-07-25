@@ -7,6 +7,98 @@ This extension is composed of a Python package named `srs_jupyterlab_extension`
 for the server extension and a NPM package named `srs-jupyterlab-extension`
 for the frontend extension.
 
+## Overview
+
+You are a computer science instructor who wants to help students learn from their coding activities during assignments, such as copy paste, error message, and in the future built-in Chatgpt messages through the method of spaced repetition.
+
+==Introduce spaced repetition algorithm, flashcards and learning moments==
+
+There are two questions here essentially that needs to be solved.
+1. How to detect learning moment and which learning moments are valid to collect?
+2. How to automatic generate new flashcards that are usable?
+
+For question 1, we introduce two concepts: **Context** and **User Activity**. These two data are required for each newly captured and valid learning moment.
+
+**Context** is background information about the assignment, including problem, solution and a preset of static flashcards for the assignment. *It is static and predetermined and per assignment per question.*
+
+**User Activity** is data captured dynamically as the user is coding. For *copy_paste* learning moments, it can be pasted content, line number, ... For *error_message* learning moments, it can be error message, error callback, ... *It is dynamic and per learning moment.*
+
+You can find the detailed info about interface in the next section.
+
+## Interface
+
+#### flashcard
+
+```typescript
+interface questionFlashcard {
+  lm_id: number;
+  type: "q";
+  content: {
+    question: string; // Question is limited to 200 characters
+    answer: string; // Answer is limited to 200 characters
+  };
+  visibility: "public" | "dev" | "private";
+  source?: string;
+}
+
+interface multipleChoiceFlashcard {
+  lm_id: number;
+  type: "m";
+  content: {
+    question: string; // Question is limited to 200 characters
+    answer: Array<{ option: string; isCorrect: boolean }>; // Option is limited to 45 characters
+  };
+  visibility: "public" | "dev" | "private";
+  source?: string;
+}
+
+export type flashcard = questionFlashcard | multipleChoiceFlashcard;
+```
+
+#### lm
+
+```typescript
+export interface lm {  
+lm_id: number;  
+platform: "jupyter";  
+content_type: "copy_paste" | "error";  
+content: {  
+context: context;  
+userActivitiy: userActivity;  
+},  
+visibility: "public" | "dev" | "private";  
+}
+```
+
+#### context
+
+```typescript
+export interface context {
+  cell_id: number;
+  assignment_id: number;
+  assignment_name: string;
+  question_id: number;
+  question_description: string;
+  code_source: string;
+  code_solution: string;
+  static_flashcards: Array<flashcard>;
+}
+```
+#### userActivity
+
+```typescript
+export interface userActivity {
+  cell_id: number;
+  assignment_id: number;
+  assignment_name: string;
+  question_id: number;
+  question_description: string;
+  code_source: string;
+  code_solution: string;
+  static_flashcards: Array<flashcard>;
+}
+```
+
 ## Requirements
 
 - JupyterLab >= 4.0.0j
