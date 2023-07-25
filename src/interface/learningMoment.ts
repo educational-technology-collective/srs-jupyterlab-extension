@@ -2,9 +2,9 @@ import { context } from './context';
 import { userActivity } from './userActivity';
 
 export interface lm {
-  lm_id: number;
+  _id: number;
   platform: "jupyter";
-  content_type: "copy_paste" | "error";
+  contentType: "copyPaste" | "errorCell";
   content: {
     context: context;
     userActivitiy: userActivity;

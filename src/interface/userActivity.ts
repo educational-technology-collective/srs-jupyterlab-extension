@@ -1,18 +1,23 @@
-interface errorUserActivity {
-  assignment_id: number;
-  question_id: number;
-  error: string;
-  error_type: string;
-  error_line: number;
-  error_message: string;
-  error_traceback: string;
-  error_code: string;
+export interface userActivity {
+  cellId: number;
+  lineNum: number;
+  timestamp: string;
+  content: object;
 }
 
-interface copyPasteUserActivity {
-  assignment_id: number;
-  question_id: number;
-  pasteContent: string;
+export interface errorUserActivity extends userActivity {
+  content: {
+    error: string;
+    error_type: string;
+    error_line: number;
+    error_message: string;
+    error_traceback: string;
+    error_code: string;
+  }
 }
 
-export type userActivity = errorUserActivity | copyPasteUserActivity;
+export interface copyPasteUserActivity extends userActivity {
+  content: {
+    pasteContent: string;
+  }
+}
