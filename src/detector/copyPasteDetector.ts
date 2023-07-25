@@ -1,7 +1,7 @@
 import { Clipboard } from '@jupyterlab/apputils';
 import { MimeData } from '@lumino/coreutils';
 
-export class PasteDetector {
+export class CopyPasteDetector {
   private _clipboard: MimeData;
 
   constructor() {

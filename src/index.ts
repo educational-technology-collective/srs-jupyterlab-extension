@@ -15,8 +15,6 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 // import { ValidateDetector } from './detector/validateDetector';
 // import { PasteDetector } from './detector/pasteDetector';
 import { user } from './interface/user';
-import { lm } from './interface/learningMoment';
-import { flashcard } from './interface/flashcard';
 
 // namespace CommandIDs {
 //   export const create = 'create-react-widget';
@@ -29,18 +27,12 @@ let example_user = {
   cards: [] as Array<user["cards"]>
 }
 
-let lms: lm[] = [];
-
-let flashcards: flashcard[] = [];
-
-// Console log example_user, lms, and flashcards
+// Console log example_user
 console.log(example_user);
-console.log(lms);
-console.log(flashcards);
 
 function getAssignmentId(currentNotebookPath: string): number {
   const notebookName = currentNotebookPath.split("/")[currentNotebookPath.split("/").length - 1];
-  if (notebookName === "assignment1.ipynb" || notebookName === "assignment2.ipynb") {
+  if (notebookName === "assignment1.ipynb" || notebookName === "assignment2.ipynb" || notebookName === "assignment3.ipynb" || notebookName === "assignment4.ipynb" || notebookName === "assignment5.ipynb" || notebookName === "assignment6.ipynb" || notebookName === "assignment7.ipynb" || notebookName === "assignment8.ipynb" || notebookName === "assignment9.ipynb") {
     const assignmentId = parseInt(notebookName.split(".")[0].split("assignment")[1]);
     return assignmentId;
   }
@@ -56,8 +48,14 @@ function activate(app: JupyterFrontEnd, notebooks: INotebookTracker): void {
     // Proceed only if the notebook is not null
     if (currentNotebookPath) {
       const assignmentId = getAssignmentId(currentNotebookPath);
+      // Proceed only if the notebook is an assignment notebook with a valid assignment ID in the filename
       if (assignmentId !== -1) {
         console.log(`Assignment ID: ${assignmentId} detected!`);
+        // Run detectors
+        // const cp = CopyPasteDetector(notebook);
+        // const ec = ErrorCellDetector(notebook);
+        // cp.run();
+        // ec.run();
       }
       else {
         console.log("Not an assignment notebook!");

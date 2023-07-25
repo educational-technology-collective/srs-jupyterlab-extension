@@ -2,7 +2,7 @@ import {
   IDisposable
 } from '@lumino/disposable';
 
-export class ValidateDetector implements IDisposable {
+export class ErrorCellDetector implements IDisposable {
   constructor() {
     console.log('ValidateDetector constructor called!');
 
