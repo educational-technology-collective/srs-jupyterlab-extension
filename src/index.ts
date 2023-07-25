@@ -9,11 +9,11 @@ import { ILauncher } from '@jupyterlab/launcher';
 import { reactIcon } from '@jupyterlab/ui-components';
 import { requestAPI } from './handler';
 import { CounterWidget } from './interface/widget';
-import { LibScanner } from './scanner/libScanner';
-import { ActiveCellScanner } from './scanner/activeCellScanner';
-import { MdCellScanner } from './scanner/mdCellScanner';
-import { ValidateDetector } from './detector/validateDetector';
-import { PasteDetector } from './detector/pasteDetector';
+// import { LibScanner } from './scanner/libScanner';
+// import { ActiveCellScanner } from './scanner/activeCellScanner';
+// import { MdCellScanner } from './scanner/mdCellScanner';
+// import { ValidateDetector } from './detector/validateDetector';
+// import { PasteDetector } from './detector/pasteDetector';
 import { user } from './interface/user';
 import { lm } from './interface/learningMoment';
 import { flashcard } from './interface/flashcard';
@@ -33,40 +33,16 @@ let lms: lm[] = [];
 
 let flashcards: flashcard[] = [];
 
-const init = async (notebookId :number) => {
-  const response = await requestAPI<any>('init', {
-    method: 'POST',
-    body: JSON.stringify({ notebookId })
-  });
-  flashcards = response.flashcards;
-  lms = response.lms;
-  console.log(lms);
-  console.log(flashcards);
-  for (let i = 0; i < flashcards.length; i++) {
-    example_user.cards.push({
-      // @ts-ignore
-      fc_id: flashcards[i].lm_id,
-      type: flashcards[i].type,
-      reviewRecord: {
-        gotCorrect: 0,
-        gotWrong: 0,
-        passed: 0,
-        know: 0,
-        forget: 0,
-        oneMore: 0,
-        noMore: 0,
-      },
-      seenTime: "20200101",
-      nextReview: "20200101",
-      createdAt: "",
-      updatedAt: "",
-    });
-  }
+// Console log example_user, lms, and flashcards
+console.log(example_user);
+console.log(lms);
+console.log(flashcards);
+
+function getAssignmentId(notebookId: number): number {
+  return notebookId;
 }
 
 function activate(app: JupyterFrontEnd, notebooks: INotebookTracker): void {
-  // Whenever a notebook is opened or switched,
-  // attach the validator detector to it
   notebooks.currentChanged.connect((_, notebook) => {
     if (notebook) {
       // Get notebook name
@@ -77,22 +53,21 @@ function activate(app: JupyterFrontEnd, notebooks: INotebookTracker): void {
       if (notebookName === "assignment1.ipynb" || notebookName === "assignment2.ipynb") {
         // Grab the id from notebookname
         const notebookId : number = parseInt(notebookName.split(".")[0].split("assignment")[1]);
-        // Initialize the flashcards
-        init(notebookId).then(() => {
-          console.log("Initialization complete");
-        });
-        const vdetector = new ValidateDetector();
-        const pdetector = new PasteDetector();
-        // While either validate or paste is detected, activate the scanners
-        while (vdetector.detect() || pdetector.detect()) {
-          const ascanner = new ActiveCellScanner(notebook);
-          const lscanner = new LibScanner(notebook);
-          const mscanner = new MdCellScanner(notebook);
-          ascanner.scan();
-          lscanner.scan();
-          mscanner.scan();
-          // Generate personalized flashcards
-        }
+        // Get assignment id
+        const assignmentId = getAssignmentId(notebookId);
+        console.log(`Assignment id: ${assignmentId}`);
+        // const vdetector = new ValidateDetector();
+        // const pdetector = new PasteDetector();
+        // // While either validate or paste is detected, activate the scanners
+        // while (vdetector.detect() || pdetector.detect()) {
+        //   const ascanner = new ActiveCellScanner(notebook);
+        //   const lscanner = new LibScanner(notebook);
+        //   const mscanner = new MdCellScanner(notebook);
+        //   ascanner.scan();
+        //   lscanner.scan();
+        //   mscanner.scan();
+        //   // Generate personalized flashcards
+        // }
       }
       else {
         console.log("Notebook not supported");
