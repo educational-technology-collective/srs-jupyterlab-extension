@@ -1,7 +1,7 @@
 import { context } from './context';
 import { userActivity } from './userActivity';
 
-export interface lm {
+export interface learningMoment {
   _id: number;
   platform: 'jupyter';
   contentType: 'copyPaste' | 'errorCell';

@@ -1,23 +1,51 @@
-import { MongoDbHelper } from './mongodb-helper.mjs';
+// get-context.mjs
 
-exports.handler = async (event, dbHelper) => {
-  const assignmentId = event.pathParameters.assignmentId;
-  const questionId = event.pathParameters.questionId;
+import { MongoClient } from 'mongodb';
 
-  const db = MongoDbHelper.getDb('YourDbName');
-  const contextCollection = db.collection('context');
+const getContext = async (event) => {
+  const assignmentId = parseInt(event.pathParameters.assignment_id);
+  const questionId = parseInt(event.pathParameters.question_id);
 
-  const context = await contextCollection.findOne({ assignmentId: assignmentId, questionId: questionId });
+  console.log("assignmentId", assignmentId);
+  console.log("questionId", questionId);
 
-  if (!context) {
+  let client;
+
+  try {
+    console.log("url", process.env.MONGODB_URI);
+
+    client = await MongoClient.connect(process.env.MONGODB_URI);
+
+    const database = client.db("srs");
+
+    const contextCollection = database.collection("context");
+
+    const query = { assignmentId: assignmentId, questionId: questionId };
+
+    const context = await contextCollection.findOne(query);
+
+    if (!context) {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ message: 'Context not found' }),
+      };
+    }
+
     return {
-      statusCode: 404,
-      body: JSON.stringify({ message: 'Context not found' }),
+      statusCode: 200,
+      body: JSON.stringify(context),
     };
+  } catch (err) {
+    console.error('Failed to fetch context:', err);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ message: 'Internal Server Error' }),
+    };
+  } finally {
+      if (client) {
+        await client.close();
+    }
   }
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify(context),
-  };
 };
+
+export default getContext;

@@ -1,5 +1,5 @@
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
-import { lm } from '../interface/learningMoment';
+import { learningMoment } from '../interface/learningMoment';
 import { flashcard } from '../interface/flashcard';
 // import { context } from '../interface/context';
 
@@ -102,7 +102,7 @@ export abstract class BaseDetector {
    * @param {lm} content - The learning moment to be posted to mongoDB.
    * @return {Promise<void>} - A promise that resolves when the content is successfully posted to mongoDB.
    */
-  protected async postLearningMoment(content: lm): Promise<void> {
+  protected async postLearningMoment(content: learningMoment): Promise<void> {
     const url = '/learning-moments/';
     const init = {
       method: 'POST',

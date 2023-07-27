@@ -1,14 +1,16 @@
-// put-context.mjs
+// push-context.mjs
 
 import { MongoClient } from 'mongodb';
 
-const putContext = async (event, context) => {
+const pushContext = async (event, context) => {
   const assignmentId = parseInt(event.pathParameters.assignment_id);
   const questionId = parseInt(event.pathParameters.question_id);
   let client;
 
   // Parse the request body for the new context data
   const newContext = JSON.parse(event.body);
+  newContext.assignmentId = assignmentId;
+  newContext.questionId = questionId;
 
   try {
     client = await MongoClient.connect(process.env.MONGODB_URI);
@@ -17,26 +19,15 @@ const putContext = async (event, context) => {
 
     const contextCollection = database.collection("context");
 
-    // Formulate the query and update details
-    const query = { assignmentId: assignmentId, questionId: questionId };
-    const update = { $set: newContext };
-
-    // Update the context in the database
-    const result = await contextCollection.updateOne(query, update);
-
-    if (result.matchedCount === 0) {
-      return {
-        statusCode: 404,
-        body: JSON.stringify({ message: 'Context not found' }),
-      };
-    }
+    // Add the new context to the database
+    await contextCollection.insertOne(newContext);
 
     return {
-      statusCode: 200,
-      body: JSON.stringify({ message: 'Context updated successfully' }),
+      statusCode: 201,
+      body: JSON.stringify({ message: 'Context added successfully' }),
     };
   } catch (err) {
-    console.error('Failed to update context:', err);
+    console.error('Failed to add context:', err);
     return {
       statusCode: 500,
       body: JSON.stringify({ message: 'Internal Server Error' }),
@@ -48,4 +39,4 @@ const putContext = async (event, context) => {
   }
 };
 
-export default putContext;
+export default pushContext;
