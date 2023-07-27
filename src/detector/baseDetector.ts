@@ -1,7 +1,7 @@
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { learningMoment } from '../interface/learningMoment';
 import { flashcard } from '../interface/flashcard';
-// import { context } from '../interface/context';
+import { context } from '../interface/context';
 
 export abstract class BaseDetector {
   protected notebookPanel: NotebookPanel;
@@ -63,9 +63,8 @@ export abstract class BaseDetector {
    * Description: Get the current timestamp.
    * @return {number} - The current timestamp.
    */
-  protected getCurrentTimestamp(): number {
-    const timestamp = Date.now();
-    return timestamp;
+  protected getCurrentTimestamp(): string {
+    return new Date().toISOString();
   }
 
   /*
@@ -86,14 +85,14 @@ export abstract class BaseDetector {
    */
   protected async getContext(
     assignmentId: number,
-    questionId: string
-  ): Promise<string> {
+    questionId: number
+  ): Promise<context> {
     const url = `/context/${assignmentId}/${questionId}`;
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Failed to fetch context. Status: ${response.status}`);
     }
-    const context = await response.text();
+    const context = await response.json();
     return context;
   }
 
@@ -124,7 +123,7 @@ export abstract class BaseDetector {
    * @param {object} content - The content to be posted to the GPT service.
    * @return {Promise<void>} - A promise that resolves when the content is successfully posted to the GPT service.
    */
-  protected async postGPT(content: object): Promise<void> {
+  protected async postGPT(content: learningMoment): Promise<Array<flashcard>> {
     const url = '/gpt/';
     const init = {
       method: 'POST',
@@ -139,6 +138,8 @@ export abstract class BaseDetector {
         `Failed to post to GPT service. Status: ${response.status}`
       );
     }
+    const flashcard = await response.json();
+    return flashcard;
   }
 
   /*

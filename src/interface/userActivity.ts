@@ -1,6 +1,6 @@
 export interface userActivity {
-  cellId: number;
-  lineNum: number;
+  cellId: string;
+  lineNum: number | undefined;
   timestamp: string;
   content: object;
 }

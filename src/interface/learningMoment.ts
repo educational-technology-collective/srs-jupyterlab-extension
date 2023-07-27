@@ -7,7 +7,7 @@ export interface learningMoment {
   contentType: 'copyPaste' | 'errorCell';
   content: {
     context: context;
-    userActivitiy: userActivity;
+    userActivity: userActivity;
   };
   visibility: 'public' | 'dev' | 'private';
 }
