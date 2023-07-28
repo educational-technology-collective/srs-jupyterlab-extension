@@ -7,7 +7,6 @@ export abstract class BaseDetector {
   protected notebookPanel: NotebookPanel;
   protected iNotebookTracker: INotebookTracker;
   protected assignmentId: number;
-  // protected learningMoment: lm;
 
   protected constructor(
     notebookPanel: NotebookPanel,
@@ -23,7 +22,7 @@ export abstract class BaseDetector {
    * Description: Check if the learning moment is valid, implement this method in the child class.
    * @return {boolean} - True if the learning moment is valid, false otherwise.
    */
-  abstract isValidLearningMoment(cellId: string, notebookContent: string): boolean;
+  abstract isValidLearningMoment(cellId: string): boolean;
 
   /*
    * Description: Run the detector.
