@@ -31,7 +31,46 @@ export abstract class BaseDetector {
    */
   public abstract run(): void;
 
-  abstract cellIdToQuestionId(cellId: string): number;
+  protected cellIdToQuestionId(cellId: string): string {
+    // Get the cell number/all cells
+    const curIndex = this.notebookPanel.content.activeCellIndex;
+    let q1Index = -1, q2Index = -1, q3Index = -1;
+
+    // Construct a map of assignmentId to gradeId
+    const gradeIdMap = new Map<number, Array<string>>();
+    gradeIdMap.set(1, ["cell-05ff4d29ee8e275e", "cell-ed64e3464ddd7ba7", "cell-e253518e37d33f0c"]);
+    gradeIdMap.set(2, ["cell-58fc2e5938733f6a", "cell-f63377f3c97aa7c8", "cell-0f584fb329c276fe"]);
+
+    q1Index = this.notebookPanel.content.widgets.findIndex(
+        // @ts-ignore
+        (cell) => cell.model.metadata.get('nbgrader')?.grade_id === gradeIdMap.get(this.assignmentId)[0]
+      );
+    q2Index = this.notebookPanel.content.widgets.findIndex(
+      // @ts-ignore
+      (cell) => cell.model.metadata.get('nbgrader')?.grade_id === gradeIdMap.get(this.assignmentId)[1]
+    );
+    q3Index = this.notebookPanel.content.widgets.findIndex(
+      // @ts-ignore
+      (cell) => cell.model.metadata.get('nbgrader')?.grade_id === gradeIdMap.get(this.assignmentId)[2]
+    );
+
+    if (curIndex > q1Index && curIndex < q2Index) {
+      // @ts-ignore
+      return gradeIdMap.get(this.assignmentId)[0];
+    }
+    else if (curIndex > q2Index && curIndex < q3Index) {
+      // @ts-ignore
+      return gradeIdMap.get(this.assignmentId)[1];
+    }
+    else if (curIndex > q3Index) {
+      // @ts-ignore
+      return gradeIdMap.get(this.assignmentId)[2];
+    }
+    else {
+      return "";
+    }
+
+  }
 
   /*
    * Description: Get id of the current notebook.
@@ -82,11 +121,18 @@ export abstract class BaseDetector {
    */
   protected async getContext(
     assignmentId: number,
-    questionId: number
+    questionId: string
   ): Promise<context> {
-    const url = `/context/${assignmentId}/${questionId}`;
+    // const url = `/context/${assignmentId}/${questionId}`;
     // const url = `https://i7oxbucot1.execute-api.us-east-1.amazonaws.com/dev/dev/context/${assignmentId}/${questionId}`;
-    const response = await fetch(url);
+    const url = `https://i7oxbucot1.execute-api.us-east-1.amazonaws.com/dev/dev/context/${assignmentId}/1`;
+    const init = {
+      method: 'GET',
+      headers: {
+        "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+      }
+    }
+    const response = await fetch(url, init);
     if (!response.ok) {
       throw new Error(`Failed to fetch context. Status: ${response.status}`);
     }

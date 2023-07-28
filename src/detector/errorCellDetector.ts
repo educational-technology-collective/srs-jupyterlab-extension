@@ -17,8 +17,8 @@ export class ErrorCellDetector extends BaseDetector{
 
   }
 
-  cellIdToQuestionId(cellId: string): number {
-    return 0;
+  cellIdToQuestionId(cellId: string): string {
+    return "";
   }
 
   public detect() : Promise<boolean> {
