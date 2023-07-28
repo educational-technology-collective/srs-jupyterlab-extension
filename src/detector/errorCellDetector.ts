@@ -8,9 +8,17 @@ export class ErrorCellDetector extends BaseDetector{
   private errorTraceback: string = '';
   private errorCode: string = '';
 
-  constructor(notebookPanel: NotebookPanel, iNotebookTracker: INotebookTracker) {
-    super(notebookPanel, iNotebookTracker);
+  constructor(notebookPanel: NotebookPanel, iNotebookTracker: INotebookTracker, assignmentId: number) {
+    super(notebookPanel, iNotebookTracker, assignmentId);
     console.log('ErrorCellDetector constructor');
+  }
+
+  public run(): void {
+
+  }
+
+  cellIdToQuestionId(cellId: string): number {
+    return 0;
   }
 
   public detect() : Promise<boolean> {

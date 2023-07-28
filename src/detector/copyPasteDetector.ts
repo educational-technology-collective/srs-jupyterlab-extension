@@ -1,34 +1,39 @@
 import { BaseDetector } from './baseDetector';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
-import { context } from '../interface/context';
+// import { context } from '../interface/context';
 import { copyPasteUserActivity } from '../interface/userActivity';
-import { learningMoment } from '../interface/learningMoment';
+// import { learningMoment } from '../interface/learningMoment';
 // import { Clipboard } from '@jupyterlab/apputils';
 // import { MimeData } from '@lumino/coreutils';
 
 export class CopyPasteDetector extends BaseDetector{
   private _clipboard: string = '';
 
-  constructor(notebookPanel: NotebookPanel, iNotebookTracker: INotebookTracker) {
-    super(notebookPanel, iNotebookTracker);
+  constructor(notebookPanel: NotebookPanel, iNotebookTracker: INotebookTracker, assignmentId: number) {
+    super(notebookPanel, iNotebookTracker, assignmentId);
     console.log('CopyPasteDetector constructor');
   }
 
-  public detect() : Promise<boolean> {
-    console.log('Paste detected!');
-
-    return new Promise((resolve) => {
-      document.addEventListener('paste', async (event) => {
-        // @ts-ignore
+  public run(): void {
+    console.log('CopyPasteDetector run');
+    document.addEventListener('paste', async (event) => {
+      if (event.clipboardData) {
         const clipboardData = event.clipboardData.getData('text/plain');
         this._clipboard = clipboardData;
-        console.log('Pasted content:', clipboardData);
+        console.log('Captured pasted content:', clipboardData);
+        const cellId = this.getCurrentCellId();
+        console.log('Captured Cell ID:', cellId);
 
-        if (this.isValidLearningMoment()) {
-          const cellId = this.getCurrentCellId();
+        if (this.isValidLearningMoment(cellId)) {
+          console.log('Valid learning moment!');
           const lineNum = this.getLineNum();
           const timestamp = this.getCurrentTimestamp();
-          const context: context = await this.getContext(1, 1);
+          const questionId = this.cellIdToQuestionId(cellId);
+          console.log('Captured Line number:', lineNum);
+          console.log('Captured Timestamp:', timestamp);
+          console.log('Captured Question ID:', questionId);
+          // const context: context = await this.getContext(this.assignmentId, questionId);
+          // @ts-ignore
           const userActivity: copyPasteUserActivity = {
             cellId: cellId,
             lineNum: lineNum,
@@ -37,26 +42,29 @@ export class CopyPasteDetector extends BaseDetector{
               pasteContent: this._clipboard
             }
           }
-          const lm : learningMoment = {
-            platform: 'jupyter',
-            contentType: 'copyPaste',
-            content: {
-              context: context,
-              userActivity: userActivity
-            },
-            visibility: 'dev'
-          }
-          this.postLearningMoment(lm);
-          const flashcard = await this.postGPT(lm);
-          this.pushFlashcards(flashcard);
+          // @ts-ignore
+          // const lm : learningMoment = {
+          //   platform: 'jupyter',
+          //   contentType: 'copyPaste',
+          //   content: {
+          //     context: context,
+          //     userActivity: userActivity
+          //   },
+          //   visibility: 'dev'
+          // }
+          // await this.postLearningMoment(lm);
+          // const flashcard = await this.postGPT(lm);
+          // await this.postFlashcards(flashcard);
         }
+        else {
+          console.log('Invalid learning moment!');
+        }
+      }
 
-        resolve(true);
-      });
     });
   }
 
-  public isValidLearningMoment(): boolean {
+  public isValidLearningMoment(cellId: string): boolean {
     return true;
 
     console.log('Checking if learning moment is valid...');
@@ -79,5 +87,9 @@ export class CopyPasteDetector extends BaseDetector{
     }
 
     return true;
+  }
+
+  cellIdToQuestionId(cellId: string): number {
+    return 1;
   }
 }

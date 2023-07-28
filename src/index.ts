@@ -13,12 +13,8 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 // import { ActiveCellScanner } from './scanner/activeCellScanner';
 // import { MdCellScanner } from './scanner/mdCellScanner';
 // import { ValidateDetector } from './detector/validateDetector';
-import { CopyPasteDetector } from './detector/copyPasteDetector';
+// import { CopyPasteDetector } from './detector/copyPasteDetector';
 import { user } from './interface/user';
-
-// namespace CommandIDs {
-//   export const create = 'create-react-widget';
-// }
 
 // Hardcoded for now
 let example_user = {
@@ -52,9 +48,9 @@ function activate(app: JupyterFrontEnd, iNotebookTracker: INotebookTracker): voi
       if (assignmentId !== -1) {
         console.log(`Assignment ID: ${assignmentId} detected!`);
         // Run detectors
-        const cp = new CopyPasteDetector(notebookPanel, iNotebookTracker);
+        // const cp = new CopyPasteDetector(notebookPanel, iNotebookTracker, assignmentId);
         // const ec = ErrorCellDetector(notebook);
-        cp.run();
+        // cp.run();
         // ec.run();
       }
       else {
@@ -70,6 +66,10 @@ const srsExtension: JupyterFrontEndPlugin<void> = {
   requires: [INotebookTracker],
   activate: activate
 }
+
+// namespace CommandIDs {
+//   export const create = 'create-react-widget';
+// }
 
 // const pluginWidget: JupyterFrontEndPlugin<void> = {
 //   id: 'react-widget',

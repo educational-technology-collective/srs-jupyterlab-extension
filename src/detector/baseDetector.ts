@@ -6,35 +6,32 @@ import { context } from '../interface/context';
 export abstract class BaseDetector {
   protected notebookPanel: NotebookPanel;
   protected iNotebookTracker: INotebookTracker;
+  protected assignmentId: number;
   // protected learningMoment: lm;
 
-  constructor(
+  protected constructor(
     notebookPanel: NotebookPanel,
-    iNotebookTracker: INotebookTracker
+    iNotebookTracker: INotebookTracker,
+    assignmentId: number
   ) {
     this.notebookPanel = notebookPanel;
     this.iNotebookTracker = iNotebookTracker;
+    this.assignmentId = assignmentId;
   }
-
-  /*
-   * Description: Detect learning moments, implement this method in the child class.
-   * @return {boolean} - True if a learning moment is detected, false otherwise.
-   */
-  abstract detect(): Promise<boolean>;
 
   /*
    * Description: Check if the learning moment is valid, implement this method in the child class.
    * @return {boolean} - True if the learning moment is valid, false otherwise.
    */
-  abstract isValidLearningMoment(): boolean;
+  abstract isValidLearningMoment(cellId: string): boolean;
 
   /*
    * Description: Run the detector.
    * @return {void} - Nothing.
    */
-  public async run(): Promise<void> {
-    await this.detect();
-  }
+  public abstract run(): void;
+
+  abstract cellIdToQuestionId(cellId: string): number;
 
   /*
    * Description: Get id of the current notebook.
@@ -88,6 +85,7 @@ export abstract class BaseDetector {
     questionId: number
   ): Promise<context> {
     const url = `/context/${assignmentId}/${questionId}`;
+    // const url = `https://i7oxbucot1.execute-api.us-east-1.amazonaws.com/dev/dev/context/${assignmentId}/${questionId}`;
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Failed to fetch context. Status: ${response.status}`);
@@ -143,14 +141,14 @@ export abstract class BaseDetector {
   }
 
   /*
-   * Description: PUSH the generated flashcards to mongoDB.
+   * Description: POST the generated flashcards to mongoDB.
    * @param {JSON[]} flashcards - The flashcards to be pushed to mongoDB.
    * @return {Promise<void>} - A promise that resolves when the flashcards are successfully pushed to mongoDB.
    */
-  protected async pushFlashcards(flashcards: flashcard[]): Promise<void> {
+  protected async postFlashcards(flashcards: flashcard[]): Promise<void> {
     const url = '/flashcards/';
     const init = {
-      method: 'PUSH',
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
