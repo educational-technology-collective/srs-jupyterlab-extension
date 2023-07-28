@@ -23,7 +23,7 @@ export abstract class BaseDetector {
    * Description: Check if the learning moment is valid, implement this method in the child class.
    * @return {boolean} - True if the learning moment is valid, false otherwise.
    */
-  abstract isValidLearningMoment(cellId: string): boolean;
+  abstract isValidLearningMoment(cellId: string, notebookContent: string): boolean;
 
   /*
    * Description: Run the detector.
@@ -31,6 +31,10 @@ export abstract class BaseDetector {
    */
   public abstract run(): void;
 
+  /*
+    * Description: Get the current cell ID and determine its associated question ID.
+    * @return {string} - The question ID.
+   */
   protected cellIdToQuestionId(cellId: string): string {
     // Get the cell number/all cells
     const curIndex = this.notebookPanel.content.activeCellIndex;
@@ -104,16 +108,6 @@ export abstract class BaseDetector {
   }
 
   /*
-   * Description: Deduce the question ID given assignmentId and cellId.
-   * @param {number} assignmentId - The assignment ID.
-   * @param {number} cellId - The cell ID.
-   * @return {number} - The question ID.
-   */
-  protected getQuestionId(assignmentId: number, cellId: number): number {
-    return 0;
-  }
-
-  /*
    * Description: GET the context given assignmentId and questionId.
    * @param {number} assignmentId - The assignment ID.
    * @param {string} questionId - The question ID.
@@ -123,7 +117,7 @@ export abstract class BaseDetector {
     assignmentId: number,
     questionId: string
   ): Promise<context> {
-    // const url = `/context/${assignmentId}/${questionId}`;
+    // TODO: Change lambda function to accept questionId
     // const url = `https://i7oxbucot1.execute-api.us-east-1.amazonaws.com/dev/dev/context/${assignmentId}/${questionId}`;
     const url = `https://i7oxbucot1.execute-api.us-east-1.amazonaws.com/dev/dev/context/${assignmentId}/1`;
     const init = {
@@ -146,7 +140,7 @@ export abstract class BaseDetector {
    * @return {Promise<void>} - A promise that resolves when the content is successfully posted to mongoDB.
    */
   protected async postLearningMoment(content: learningMoment): Promise<void> {
-    const url = '/learning-moments/';
+    const url = 'https://a97mj46gc1.execute-api.us-east-1.amazonaws.com/lms/';
     const init = {
       method: 'POST',
       headers: {
