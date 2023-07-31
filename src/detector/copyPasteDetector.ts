@@ -27,9 +27,9 @@ export class CopyPasteDetector extends BaseDetector{
         const lineNum = this.getLineNum();
         const timestamp = this.getCurrentTimestamp();
 
-        if (this.isValidLearningMoment(this.getCurrentCellId())) {
-          console.log('Run A');
+        const boolean = await this.isValidLearningMoment(this.getCurrentCellId());
 
+        if (boolean) {
           const questionId = this.cellIdToQuestionId(this.getCurrentCellId());
           console.log('About to call getContext...');
           const context: context = await this.getContext(this.assignmentId, questionId);
@@ -43,8 +43,7 @@ export class CopyPasteDetector extends BaseDetector{
             }
           }
 
-          console.log('Run B');
-
+          // @ts-ignore
           const lm : learningMoment = {
             platform: 'jupyter',
             contentType: 'copyPaste',
@@ -55,14 +54,10 @@ export class CopyPasteDetector extends BaseDetector{
             visibility: 'dev'
           }
 
-          console.log('Run D');
-
-          console.log('Captured Learning Moment:', lm);
+          // console.log('Captured Learning Moment:', lm);
           // await this.postLearningMoment(lm);
           // const flashcard = await this.postGPT(lm);
           // await this.postFlashcards(flashcard);
-
-          console.log('Run E');
         }
       }
 
@@ -89,16 +84,21 @@ export class CopyPasteDetector extends BaseDetector{
       const pasteContent = this._clipboard;
       console.log("notebook content:", this._notebookContent);
 
-      // Check if the notebook content contains the pasted content
-      if (this._notebookContent.includes(pasteContent)) {
+      // Assuming this method returns a Promise
+      const isValid = this.isPastedContentValid(this._notebookContent, pasteContent);
+
+      if (isValid) {
+        console.log('Valid learning moment!');
+        return true;
+      } else {
         console.log('Not a valid learning moment!');
         return false;
       }
-      else {
-        console.log('Valid learning moment!');
-        return true;
-      }
     }
+  }
+
+  public isPastedContentValid(notebookContent: string, pasteContent: string): boolean {
+    return !notebookContent.includes(pasteContent);
   }
 
 }

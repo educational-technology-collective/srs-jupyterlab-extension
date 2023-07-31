@@ -118,7 +118,7 @@ export abstract class BaseDetector {
   ): Promise<context> {
     // TODO: Change lambda function to accept questionId
     // const url = `https://i7oxbucot1.execute-api.us-east-1.amazonaws.com/dev/dev/context/${assignmentId}/${questionId}`;
-    const url = `https://i7oxbucot1.execute-api.us-east-1.amazonaws.com/dev/dev/context/${assignmentId}/1`;
+    const url = `https://i7oxbucot1.execute-api.us-east-1.amazonaws.com/dev/dev/context/${assignmentId}/3`;
     const init = {
       method: 'GET',
       headers: {

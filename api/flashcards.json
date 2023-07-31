@@ -1,0 +1,23 @@
+[
+  {
+    "type": "q",
+    "content": {
+        "question": "What's the difference between `re.finditer()` and `re.findall()` in Python's regex module, and when should each be used?",
+        "answer": "`re.finditer()` returns an iterator yielding match objects, while `re.findall()` returns a list of strings. Use `finditer` when you want to access group information, `findall` when you only need the matching strings."
+    },
+    "visibility": "development",
+    "source": "jupyter"
+  },
+  {
+      "type": "q",
+      "content": {
+          "question": "What does `item.groupdict()` do when used with `re.findall()` in Python's regex module?",
+          "answer": "`item.groupdict()` is used to return a dictionary containing all the named subgroups of the match. But in this case, it's incorrect because `re.findall()` doesn't return match objects."
+      },
+      "visibility": "development",
+      "source": "jupyter"
+  }
+
+
+
+]

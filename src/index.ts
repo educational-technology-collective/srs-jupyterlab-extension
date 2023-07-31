@@ -12,7 +12,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 // import { LibScanner } from './scanner/libScanner';
 // import { ActiveCellScanner } from './scanner/activeCellScanner';
 // import { MdCellScanner } from './scanner/mdCellScanner';
-// import { ValidateDetector } from './detector/validateDetector';
+import { ErrorCellDetector } from './detector/errorCellDetector';
 import { CopyPasteDetector } from './detector/copyPasteDetector';
 import { user } from './interface/user';
 
@@ -49,9 +49,9 @@ function activate(app: JupyterFrontEnd, iNotebookTracker: INotebookTracker): voi
 
         // Run detectors
         const cp = new CopyPasteDetector(notebookPanel, iNotebookTracker, assignmentId);
-        // const ec = new ErrorCellDetector(notebook);
+        const ec = new ErrorCellDetector(notebookPanel, iNotebookTracker, assignmentId);
         cp.run();
-        // ec.run();
+        ec.run();
       }
       else {
         console.log("Not an assignment notebook!");
