@@ -27,13 +27,13 @@ export class CopyPasteDetector extends BaseDetector{
         const lineNum = this.getLineNum();
         const timestamp = this.getCurrentTimestamp();
 
-        const boolean = await this.isValidLearningMoment(this.getCurrentCellId());
+        const boolean = this.isValidLearningMoment(this.getCurrentCellId());
 
         if (boolean) {
           const questionId = this.cellIdToQuestionId(this.getCurrentCellId());
           console.log('About to call getContext...');
           const context: context = await this.getContext(this.assignmentId, questionId);
-          console.log('About to call getContext...');
+          console.log('context:', context);
           const userActivity: copyPasteUserActivity = {
             cellId: cellId,
             lineNum: lineNum,

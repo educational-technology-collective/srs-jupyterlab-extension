@@ -117,12 +117,13 @@ export abstract class BaseDetector {
     questionId: string
   ): Promise<context> {
     // TODO: Change lambda function to accept questionId
-    // const url = `https://i7oxbucot1.execute-api.us-east-1.amazonaws.com/dev/dev/context/${assignmentId}/${questionId}`;
-    const url = `https://i7oxbucot1.execute-api.us-east-1.amazonaws.com/dev/dev/context/${assignmentId}/3`;
+    const url = `	https://a97mj46gc1.execute-api.us-east-1.amazonaws.com/dev/context/${assignmentId}/3`;
     const init = {
       method: 'GET',
       headers: {
-        "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+        "content-type": "application/json",
+        "accept": "*/*",
+        "authorization": "Bearer"
       }
     }
     const response = await fetch(url, init);
