@@ -7,13 +7,10 @@ import { learningMoment } from '../interface/learningMoment';
 export class CopyPasteDetector extends BaseDetector{
   private _copiedContent: string = '';
   private _clipboard: string = '';
-  private readonly _notebookContent: string = '';
   private static _instance: CopyPasteDetector | null = null;
 
   constructor(notebookPanel: NotebookPanel, iNotebookTracker: INotebookTracker, assignmentId: number) {
     super(notebookPanel, iNotebookTracker, assignmentId);
-    this._notebookContent = this.getTextFromAllCells();
-
     this.registerEventListeners();
 
     CopyPasteDetector._instance = this;
@@ -22,9 +19,8 @@ export class CopyPasteDetector extends BaseDetector{
   private registerEventListeners(): void {
     document.addEventListener('copy', async (event) => {
       if (event.clipboardData) {
-        const clipboardData = event.clipboardData.getData('text/plain');
-        this._copiedContent = clipboardData;
-        console.log('Copied content:', this._copiedContent)
+        this._copiedContent = window.getSelection()?.toString() || '';
+        console.log('Copied content:', this._copiedContent);
       }
     });
 
@@ -108,23 +104,20 @@ export class CopyPasteDetector extends BaseDetector{
   }
 
   public isValidLearningMoment(cellId: string): boolean {
-    return true;
 
     if (this.cellIdToQuestionId(cellId) === '') {
       console.log('Not a valid learning moment!');
       return false;
     }
     else {
-      // Check if the paste event is triggered from the notebook by searching the notebook if it has the pasted content
-      const pasteContent = this._clipboard;
-      console.log("notebook content:", this._notebookContent);
-
-      if (!this._notebookContent.includes(pasteContent)) {
-        console.log('Valid learning moment!');
-        return true;
-      } else {
+      // If the pasted content is the same as the copied content, it is not a valid learning moment
+      if (this._clipboard === this._copiedContent) {
         console.log('Not a valid learning moment!');
         return false;
+      }
+      else {
+        console.log('Valid learning moment!')
+        return true;
       }
     }
   }
