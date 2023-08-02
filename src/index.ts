@@ -47,8 +47,10 @@ function activate(app: JupyterFrontEnd, iNotebookTracker: INotebookTracker): voi
       if (assignmentId !== -1) {
         console.log(`Assignment ID: ${assignmentId} detected!`);
 
-        // Run detectors
-        const cp = new CopyPasteDetector(notebookPanel, iNotebookTracker, assignmentId);
+        if (!CopyPasteDetector.isInitialized()) {
+          CopyPasteDetector.initialize(notebookPanel, iNotebookTracker, assignmentId);
+        }
+        const cp = CopyPasteDetector.getInstance(notebookPanel, iNotebookTracker);
         const ec = new ErrorCellDetector(notebookPanel, iNotebookTracker, assignmentId);
         cp.run();
         ec.run();

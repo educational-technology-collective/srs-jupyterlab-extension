@@ -4,7 +4,7 @@ export interface context {
   _id: string;
   assignmentId: number;
   assignmentDescription: string;
-  questionId: string;
+  questionId: number; // TODO: Will change to string
   questionDescription: string;
   codeSource: string;
   codeSolution: string;
