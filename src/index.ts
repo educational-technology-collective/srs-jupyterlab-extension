@@ -2,7 +2,7 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
-import { INotebookTracker } from '@jupyterlab/notebook';
+import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 // import { ISettingRegistry } from '@jupyterlab/settingregistry';
 // import { MainAreaWidget } from '@jupyterlab/apputils';
 // import { ILauncher } from '@jupyterlab/launcher';
@@ -14,16 +14,6 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 // import { MdCellScanner } from './scanner/mdCellScanner';
 import { ErrorCellDetector } from './detector/errorCellDetector';
 import { CopyPasteDetector } from './detector/copyPasteDetector';
-import { user } from './interface/user';
-
-// Hardcoded for now
-let example_user = {
-  user_id: 0,
-  email: "example@umich.edu",
-  cards: [] as Array<user["cards"]>
-}
-
-console.log(example_user);
 
 function getAssignmentId(currentNotebookPath: string): number {
   const notebookName = currentNotebookPath.split("/")[currentNotebookPath.split("/").length - 1];
@@ -36,6 +26,22 @@ function getAssignmentId(currentNotebookPath: string): number {
   }
 }
 
+function getUserId(notebookPanel: NotebookPanel): string {
+  const cell0 = notebookPanel.content.widgets[0];
+  let userId = "";
+  // Search for string ends with @umich.edu
+  // @ts-ignore
+  for (let i = 0; i < cell0.model.toJSON()['source'].split("\n").length; i++) {
+    // @ts-ignore
+    const line = cell0.model.toJSON()['source'].split("\n")[i];
+    if (line.endsWith("@umich.edu")) {
+      userId = line;
+      break;
+    }
+  }
+  return userId;
+}
+
 function activate(app: JupyterFrontEnd, iNotebookTracker: INotebookTracker): void {
   console.log('JupyterLab extension srs-jupyterlab-extension is activated!');
 
@@ -44,8 +50,10 @@ function activate(app: JupyterFrontEnd, iNotebookTracker: INotebookTracker): voi
     const currentNotebookPath = notebookPanel?.context.path;
     if (currentNotebookPath) {
       const assignmentId = getAssignmentId(currentNotebookPath);
+      const userId = getUserId(notebookPanel);
+      console.log("Assignment ID:", assignmentId);
+      console.log("User ID:", userId);
       if (assignmentId !== -1) {
-        console.log(`Assignment ID: ${assignmentId} detected!`);
 
         if (!CopyPasteDetector.isInitialized()) {
           CopyPasteDetector.initialize(notebookPanel, iNotebookTracker, assignmentId);
