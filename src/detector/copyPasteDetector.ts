@@ -9,8 +9,8 @@ export class CopyPasteDetector extends BaseDetector{
   private _clipboard: string = '';
   private static _instance: CopyPasteDetector | null = null;
 
-  constructor(notebookPanel: NotebookPanel, iNotebookTracker: INotebookTracker, assignmentId: number) {
-    super(notebookPanel, iNotebookTracker, assignmentId);
+  private constructor(notebookPanel: NotebookPanel, iNotebookTracker: INotebookTracker, assignmentId: number, userId: string) {
+    super(notebookPanel, iNotebookTracker, assignmentId, userId);
     this.registerEventListeners();
 
     CopyPasteDetector._instance = this;
@@ -39,9 +39,7 @@ export class CopyPasteDetector extends BaseDetector{
 
         if (boolean) {
           const questionId = this.cellIdToQuestionId(this.getCurrentCellId());
-          console.log('About to call getContext...');
           const context: context = await this.getContext(this.assignmentId, questionId);
-          console.log('context:', context);
           const userActivity: copyPasteUserActivity = {
             cellId: cellId,
             lineNum: lineNum,
@@ -52,6 +50,7 @@ export class CopyPasteDetector extends BaseDetector{
           }
 
           const lm : learningMoment = {
+            userId: this.userId,
             platform: 'jupyter',
             contentType: 'copyPaste',
             content: {
@@ -62,7 +61,8 @@ export class CopyPasteDetector extends BaseDetector{
           }
 
           console.log('Captured Learning Moment:', lm);
-          // await this.postLearningMoment(lm);
+
+          await this.postLearningMoment(lm);
           // const flashcard = await this.postGPT(lm);
           // await this.postFlashcards(flashcard);
         }
@@ -74,18 +74,18 @@ export class CopyPasteDetector extends BaseDetector{
     return CopyPasteDetector._instance !== null
   }
 
-  public static getInstance(notebookPanel: NotebookPanel, iNotebookTracker: INotebookTracker): CopyPasteDetector {
+  public static getInstance(): CopyPasteDetector {
     if (CopyPasteDetector._instance === null) {
       throw new Error('Instance not initialized. Call initialize() first.');
     }
     return CopyPasteDetector._instance;
   }
 
-  public static initialize(notebookPanel: NotebookPanel, iNotebookTracker: INotebookTracker, assignmentId: number): CopyPasteDetector {
+  public static initialize(notebookPanel: NotebookPanel, iNotebookTracker: INotebookTracker, assignmentId: number, userId: string): CopyPasteDetector {
     if (CopyPasteDetector._instance !== null) {
       throw new Error('Instance already initialized.');
     }
-    CopyPasteDetector._instance = new CopyPasteDetector(notebookPanel, iNotebookTracker, assignmentId);
+    CopyPasteDetector._instance = new CopyPasteDetector(notebookPanel, iNotebookTracker, assignmentId, userId);
     return CopyPasteDetector._instance;
   }
 
@@ -116,13 +116,13 @@ export class CopyPasteDetector extends BaseDetector{
         return false;
       }
       else {
-        console.log('Valid learning moment!')
+        console.log('Valid learning moment!');
         return true;
       }
     }
   }
 
-  public isPastedContentValid(notebookContent: string, pasteContent: string): boolean {
+  public isValidPastedContent(notebookContent: string, pasteContent: string): boolean {
     return !notebookContent.includes(pasteContent);
   }
 

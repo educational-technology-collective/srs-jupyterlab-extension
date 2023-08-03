@@ -65,9 +65,9 @@ async function initializeDetectors(currentNotebookPath: string | undefined, iNot
     if (assignmentId !== -1 && userId !== "") {
 
       if (!CopyPasteDetector.isInitialized()) {
-        CopyPasteDetector.initialize(notebookPanel, iNotebookTracker, assignmentId);
+        CopyPasteDetector.initialize(notebookPanel, iNotebookTracker, assignmentId, userId);
       }
-      const cp = CopyPasteDetector.getInstance(notebookPanel, iNotebookTracker);
+      const cp = CopyPasteDetector.getInstance();
       const ec = new ErrorCellDetector(notebookPanel, iNotebookTracker, assignmentId);
       cp.run();
       ec.run();

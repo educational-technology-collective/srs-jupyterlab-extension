@@ -4,25 +4,31 @@ import { flashcard } from '../interface/flashcard';
 import { context } from '../interface/context';
 
 export abstract class BaseDetector {
+  private baseApiUrl: string;
   protected notebookPanel: NotebookPanel;
   protected iNotebookTracker: INotebookTracker;
   protected assignmentId: number;
+  protected userId: string;
 
   protected constructor(
     notebookPanel: NotebookPanel,
     iNotebookTracker: INotebookTracker,
-    assignmentId: number
+    assignmentId: number,
+    userId: string,
+    baseApiUrl: string = 'https://a97mj46gc1.execute-api.us-east-1.amazonaws.com'
   ) {
     this.notebookPanel = notebookPanel;
     this.iNotebookTracker = iNotebookTracker;
     this.assignmentId = assignmentId;
+    this.userId = userId;
+    this.baseApiUrl = baseApiUrl;
   }
 
   /*
    * Description: Check if the learning moment is valid, implement this method in the child class.
    * @return {boolean} - True if the learning moment is valid, false otherwise.
    */
-  abstract isValidLearningMoment(cellId: string): boolean;
+  protected abstract isValidLearningMoment(cellId: string): boolean;
 
   /*
    * Description: Run the detector.
@@ -32,14 +38,13 @@ export abstract class BaseDetector {
 
   /*
     * Description: Get the current cell ID and determine its associated question ID.
+    * TODO: Add assignment 3 & 4 mapping.
     * @return {string} - The question ID.
    */
   protected cellIdToQuestionId(cellId: string): string {
-    // Get the cell number/all cells
     const curIndex = this.notebookPanel.content.activeCellIndex;
     let q1Index = -1, q2Index = -1, q3Index = -1;
 
-    // Construct a map of assignmentId to gradeId
     const gradeIdMap = new Map<number, Array<string>>();
     gradeIdMap.set(1, ["cell-05ff4d29ee8e275e", "cell-ed64e3464ddd7ba7", "cell-e253518e37d33f0c"]);
     gradeIdMap.set(2, ["cell-58fc2e5938733f6a", "cell-f63377f3c97aa7c8", "cell-0f584fb329c276fe"]);
@@ -111,13 +116,14 @@ export abstract class BaseDetector {
    * @param {number} assignmentId - The assignment ID.
    * @param {string} questionId - The question ID.
    * @return {Promise<string>} - A promise that resolves to the context.
+   * TODO: Change lambda function to accept questionId
+   * TODO: Change MongoDB's questionId to string
    */
   protected async getContext(
     assignmentId: number,
     questionId: string
   ): Promise<context> {
-    // TODO: Change lambda function to accept questionId
-    const url = `	https://a97mj46gc1.execute-api.us-east-1.amazonaws.com/dev/context/${assignmentId}/3`;
+    const url = `${this.baseApiUrl}/dev/context/${assignmentId}/3`;
     const init = {
       method: 'GET',
       headers: {
@@ -140,13 +146,15 @@ export abstract class BaseDetector {
    * @return {Promise<void>} - A promise that resolves when the content is successfully posted to mongoDB.
    */
   protected async postLearningMoment(content: learningMoment): Promise<void> {
-    const url = 'https://a97mj46gc1.execute-api.us-east-1.amazonaws.com/lms/';
+    const url = `${this.baseApiUrl}/dev/lm-user/`;
     const init = {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'content-type': 'application/json',
+        "accept": "*/*",
+        "authorization": "Bearer"
       },
-      body: JSON.stringify({ content })
+      body: JSON.stringify(content)
     };
     const response = await fetch(url, init);
     if (!response.ok) {
@@ -162,7 +170,7 @@ export abstract class BaseDetector {
    * @return {Promise<void>} - A promise that resolves when the content is successfully posted to the GPT service.
    */
   protected async postGPT(content: learningMoment): Promise<Array<flashcard>> {
-    const url = '/gpt/';
+    const url = '${this.baseApiUrl}/gpt/';
     const init = {
       method: 'POST',
       headers: {
@@ -186,7 +194,7 @@ export abstract class BaseDetector {
    * @return {Promise<void>} - A promise that resolves when the flashcards are successfully pushed to mongoDB.
    */
   protected async postFlashcards(flashcards: flashcard[]): Promise<void> {
-    const url = '/flashcards/';
+    const url = '${this.baseApiUrl}/flashcards/';
     const init = {
       method: 'POST',
       headers: {

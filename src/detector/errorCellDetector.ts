@@ -4,7 +4,7 @@ import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 export class ErrorCellDetector extends BaseDetector{
 
   constructor(notebookPanel: NotebookPanel, iNotebookTracker: INotebookTracker, assignmentId: number) {
-    super(notebookPanel, iNotebookTracker, assignmentId);
+    super(notebookPanel, iNotebookTracker, assignmentId, '123');
     console.log('ErrorCellDetector constructor');
   }
 
